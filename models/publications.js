@@ -7,6 +7,10 @@ const PublicationSchema = Schema({
     ref: "User",
     required: true
   },
+  title: {
+    type: String,
+    required: true
+  },
   text: {
     type: String,
     required: true

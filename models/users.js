@@ -30,6 +30,7 @@ const UserSchema = Schema ({
   },
   role: {
     type: String,
+    enum: ['administrator_fundation', 'role_user'],
     default: "role_user"
   },
   image: {

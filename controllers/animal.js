@@ -2,7 +2,7 @@ import Animal from '../models/animals.js';
 // Método de prueba del controlador animal rescatado
 export const testAnimal = (req, res) => {
     return res.status(200).send({
-      message: "Mensaje enviado desde el controlador de Animals"
+      message: "Mensaje enviado desde el controlador de Animals de la  Fundacion de Animales"
     });
   };
   
@@ -11,26 +11,27 @@ export const register = async (req, res) => {
   try {
     // Obtener los datos de la petición
     let params = req.body;
+    console.log(params);
 
     // Validar los datos obtenidos (que los datos obligatorios existan)
-    if(!params.name || !params.owner_name || !params.species || !params.gender || !params.trained || !params.image_url || !params.adopted) {
+    if(!params.name || !params.owner_name || !params.species || !params.gender ) {
       return res.status(400).json({
         status: "error",
-        message: "Faltan datos por enviar para un registtro exitoso y detallado del animal rescatado"
+        message: "Faltan datos por enviar para un registro exitoso y detallado del animal rescatado"
       });
     }
 
     // Crear el objeto del animal rescatado con los datos que validamos
     let animal_to_save = new Animal(params);
+  
+       
 
     // Control de animales rescatados duplicados
     const existingAnimal = await Animal.findOne({
-      $or: [
+      $and: [
         { name: animal_to_save.name.toLowerCase() },
-        { species: animal_to_save.especies.toLowerCase()      
-        },
+        { species: animal_to_save.species.toLowerCase()},
         { gender: animal_to_save.gender.toLowerCase() },
-        { owner_name: animal_to_save.owner_name.toLowerCase() },
         
       ]
     });
@@ -43,13 +44,13 @@ export const register = async (req, res) => {
       });
     }
     // Guardar el animal rescatado en la base de datos
-    await user_to_save.save();
+    await animal_to_save.save();
 
      // Devolver el animal rescatado registrado
      return res.status(201).json({
       status: "created",
       message: "Registro de animal rescatado exitoso en la Base de Datos de la Fundacion!",
-      user_to_save
+      animal_to_save
     });
 
   } catch (error) {

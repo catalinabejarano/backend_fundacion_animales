@@ -7,6 +7,7 @@ const router = Router();
 router.get('/test-animal', testAnimal);
 router.post('/register', register);
 
+
 //Exportar el Router
 export default router;
 

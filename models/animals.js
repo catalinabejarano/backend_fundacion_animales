@@ -3,33 +3,44 @@
 //const PetSchema = new mongoose.Schema({
  
 import { Schema, model } from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";  //Ayuda con la paginacion al listar usuarios 
+import mongoosePaginate from "mongoose-paginate-v2";  //Ayuda con la paginacion al listar animales rewscatados
 
 const AnimalSchema = Schema ({
+  user_id: {
+    type: Schema.ObjectId,
+    ref: "User",
+    required: true
+  },
+  user_role: {
+    type: Schema.ObjectId,
+    ref: "User",
+    required: true
+  },
 name: {
     /* The name of this Animal */
     type: String,
     required: [true, 'Please provide a name for this animal.'],
     maxlength: [60, 'Name cannot be more than 60 characters'],
+    unique: true,
   },
   owner_name: {
     /* The owner of this Animal */
     type: String,
-    enum: ['gFundacion', 'Particular'],
-    required: [true, "Please provide the animal owner's name"],
+    enum: ['Fundacion', 'Particular'],
+    required: [false, "Please provide the animal owner's name"],
     maxlength: [60, "Owner's Name cannot be more than 60 characters"],
   },
   species: {
     /* The species of this Animal */
     type: String,
-    enum: ['gato', 'perro'],
+    enum: ['Gato', 'Perro'],
     required: [true, 'Please specify the species of animal.'],
-    maxlength: [40, 'Species specified cannot be more than 40 characters'],
+    maxlength: [10, 'Species specified cannot be more than 40 characters'],
   },
   gender: {
     /* Gender of the Animal */
     type: String,
-    enum: ['macho', 'hembra'],
+    enum: ['Macho', 'Hembra'],
     required: [true, 'Please specify the gender of this animal.'],
   },
   age: {
@@ -38,26 +49,26 @@ name: {
   },
   trained: {
     /* Boolean trained value, if applicable */
-    required: [true, 'Please specify if is trained.'],
+    required: [false, 'Please specify if is trained.'],
     type: Boolean,
   },
   diet: {
     /* List of dietary needs, if applicable */
-
     type: Array,
   },
   image_url: {
     /* Url to pet image */
     required: [true, 'Please provide an image url for this Animal.'],
     type: String,
+    maxlength: [20, 'URL donde esta la iamgen almacenada del Animal Rescatado'],
   },
-  likes: {
-    /* List of things this Animal likes to do */
+  habits: {
+    /* List of habits of this Animal */
 
     type: Array,
   },
-  dislikes: {
-    /* List of things this Animal does not like to do */
+  diseases: {
+    /* List of diseases of this Animal*/
 
     type: Array,
   },
@@ -65,13 +76,18 @@ name: {
     /* Adoption of this Animal */
     required: [false, 'Please provide if is adopted this Animal'],
     type: Boolean,
+    default: "false"
+  },
+  created_at: {
+    type: Date,
+    default: Date.now
   }
 });
 
 // Configurar el plugin de paginación de Mongo
 AnimalSchema.plugin(mongoosePaginate);
 
-export default model("Animal", AnimalSchema, "animals_list");
+export default model("Animal", AnimalSchema, "animals");
 
 
 //})
