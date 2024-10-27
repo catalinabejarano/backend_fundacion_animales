@@ -247,7 +247,8 @@ export const updateUser = async (req, res) => {
         { nick: userToUpdate.nick }
       ]
     }).exec();
-
+    
+    
     // Verificar si el usuario está duplicado para evitar conflictos
     const isDuplicateUser = users.some(user => {
       return user && user._id.toString() !== userIdentity.userId;
@@ -274,7 +275,8 @@ export const updateUser = async (req, res) => {
     } else {
       delete userToUpdate.password;
     }
-
+    
+    
     // Buscar y actualizar el usuario en Mongo
     let userUpdated = await User.findByIdAndUpdate(userIdentity.userId, userToUpdate, { new: true});
 
@@ -293,10 +295,10 @@ export const updateUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.log("Error al actualizar los datos del usuario: ", error);
+    console.log("Error al actualizar los datos del animal rescatado: ", error);
     return res.status(500).send({
       status: "error",
-      message: "Error al actualizar los datos del usuario"
+      message: "Error al actualizar los datos del animal rescatado"
     });
   }
 };

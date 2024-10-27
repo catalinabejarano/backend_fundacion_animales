@@ -9,12 +9,12 @@ const AnimalSchema = Schema ({
   user_id: {
     type: Schema.ObjectId,
     ref: "User",
-    required: true
+    required: false
   },
   user_role: {
     type: Schema.ObjectId,
     ref: "User",
-    required: true
+    required: false
   },
 name: {
     /* The name of this Animal */
@@ -26,21 +26,21 @@ name: {
   owner_name: {
     /* The owner of this Animal */
     type: String,
-    enum: ['Fundacion', 'Particular'],
+    enum: ['fundacion', 'particular'],
     required: [false, "Please provide the animal owner's name"],
     maxlength: [60, "Owner's Name cannot be more than 60 characters"],
   },
   species: {
     /* The species of this Animal */
     type: String,
-    enum: ['Gato', 'Perro'],
+    enum: ['gato', 'perro'],
     required: [true, 'Please specify the species of animal.'],
     maxlength: [10, 'Species specified cannot be more than 40 characters'],
   },
   gender: {
     /* Gender of the Animal */
     type: String,
-    enum: ['Macho', 'Hembra'],
+    enum: ['macho', 'hembra'],
     required: [true, 'Please specify the gender of this animal.'],
   },
   age: {
@@ -57,8 +57,8 @@ name: {
     type: Array,
   },
   image_url: {
-    /* Url to pet image */
-    required: [true, 'Please provide an image url for this Animal.'],
+    /* Url to Rescued Animal image */
+    required: [false, 'Please provide an image url for this Animal.'],
     type: String,
     maxlength: [20, 'URL donde esta la iamgen almacenada del Animal Rescatado'],
   },
