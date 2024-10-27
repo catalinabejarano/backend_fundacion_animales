@@ -196,7 +196,7 @@ export const uploadMedia = async (req, res) => {
     if(!req.file){
       return res.status(400).send({
         status: "error",
-        message: "La petición no incluye la imagen"
+        message: "La petición no incluyo la imagen"
       });
     }
 

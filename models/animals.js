@@ -1,7 +1,3 @@
-//import mongoose from 'mongoose'
-/* PetSchema will correspond to a collection in your MongoDB database. */
-//const PetSchema = new mongoose.Schema({
- 
 import { Schema, model } from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";  //Ayuda con la paginacion al listar animales rewscatados
 
@@ -9,14 +5,9 @@ const AnimalSchema = Schema ({
   user_id: {
     type: Schema.ObjectId,
     ref: "User",
-    required: false
+    required: true
   },
-  user_role: {
-    type: Schema.ObjectId,
-    ref: "User",
-    required: false
-  },
-name: {
+ name: {
     /* The name of this Animal */
     type: String,
     required: [true, 'Please provide a name for this animal.'],
@@ -27,7 +18,8 @@ name: {
     /* The owner of this Animal */
     type: String,
     enum: ['fundacion', 'particular'],
-    required: [false, "Please provide the animal owner's name"],
+    //required: [false, "Please provide the animal owner's name"],
+    default: "fundacion",
     maxlength: [60, "Owner's Name cannot be more than 60 characters"],
   },
   species: {
@@ -49,7 +41,7 @@ name: {
   },
   trained: {
     /* Boolean trained value, if applicable */
-    required: [false, 'Please specify if is trained.'],
+    //required: [false, 'Please specify if is trained.'],
     type: Boolean,
   },
   diet: {
@@ -58,7 +50,7 @@ name: {
   },
   image_url: {
     /* Url to Rescued Animal image */
-    required: [false, 'Please provide an image url for this Animal.'],
+    //required: [false, 'Please provide an image url for this Animal.'],
     type: String,
     maxlength: [20, 'URL donde esta la iamgen almacenada del Animal Rescatado'],
   },
@@ -89,6 +81,3 @@ AnimalSchema.plugin(mongoosePaginate);
 
 export default model("Animal", AnimalSchema, "animals");
 
-
-//})
-//export default mongoose.models.Pet || mongoose.model('Pet', PetSchema)
