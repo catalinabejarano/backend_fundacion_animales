@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { testAnimal, register, showRescuedAnimal, deleteRescuedAnimal, rescuedAnimals, uploadMediaAnimals } from "../controllers/animal.js";
-//import { testAnimal, register, updateAnimal } from "../controllers/animal.js";
+import { testAnimal, register, showRescuedAnimal, deleteRescuedAnimal, rescuedAnimals, uploadMediaAnimals, updateAnimal } from "../controllers/animal.js";
 import { ensureAuth} from "../middlewares/auth.js";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
@@ -30,9 +29,9 @@ router.get('/test-animal/', testAnimal);
 router.post('/register/', ensureAuth, register);
 router.get('/rescued-animal/:id', ensureAuth, showRescuedAnimal);
 router.delete('/delete-rescued-animal/:id', ensureAuth, deleteRescuedAnimal);
-router.get('/rescued-animals/:id/:page?', ensureAuth, rescuedAnimals);
+router.get('/animals-list/:page?', ensureAuth, rescuedAnimals);
 router.post('/upload-media-animals/:id', [ensureAuth, uploads.single("file0")], uploadMediaAnimals)
-//router.put('/update', ensureAuth, updateAnimal);
+router.put('/update-register/:id', ensureAuth, updateAnimal);
 
 
 //Exportar el Router

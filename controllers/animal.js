@@ -1,5 +1,5 @@
 import Animal from '../models/animals.js';
-
+import mongoose from 'mongoose';
 
 // Método de prueba del controlador animal rescatado
 export const testAnimal = (req, res) => {
@@ -99,7 +99,7 @@ export const showRescuedAnimal = async (req, res) => {
     // Buscar el Animal rescatado en la BD por ID
     const rescuedAnimalStored = await Animal.findById(rescuedAnimalId).populate('user_id', 'name last_name');
 
-    // Verificar si existe Animla rescatado en la BD
+    // Verificar si existe Animal rescatado en la BD
     if(!rescuedAnimalStored){
       return res.status(404).send({
         status: "error",
@@ -123,7 +123,7 @@ export const showRescuedAnimal = async (req, res) => {
   }
 };
 
-// Método para eliminar una publicación
+// Método para eliminar un registro de animal rescatado 
 export const deleteRescuedAnimal = async (req, res) => {
   try {
 
@@ -143,7 +143,7 @@ export const deleteRescuedAnimal = async (req, res) => {
      }
 
 
-    // Buscar el registro del Animal rescatado  en la BD y lo eliminamos
+    // Buscar el registro del Animal rescatado  en la BD y lo eliminamos solo con el usuario que lo creo en la BD como Admin
     const rescueDelete = await Animal.findOneAndDelete({ user_id: req.user.userId, _id: rescuedAnimalId}).populate('user_id', 'name last_name');
 
     // Verificar si existe la publicación en la BD y si se eliminó de la BD
@@ -170,7 +170,7 @@ export const deleteRescuedAnimal = async (req, res) => {
   }
 };
 
-// Método para listar los registros de animales rescatados, enviándole el id del usuario en los parámetros de la URL de la petición (endpoint)
+// Método para listar los registros de animales rescatados
 export const rescuedAnimals = async (req, res) => {
   try {
     // ID del usuario Administrador
@@ -191,7 +191,7 @@ export const rescuedAnimals = async (req, res) => {
       sort: { created_at: -1 },
       populate: {
         path: 'user_id',
-        select: '-password -role -__v -email'
+        select: '-nick -image -password -role -__v -email -created_at'
       },
       lean: true
     };
@@ -297,37 +297,31 @@ export const uploadMediaAnimals = async (req, res) => {
   }
 };
 
-/*
+
 // Método para actualizar los datos de animales rescatados
 export const updateAnimal = async (req, res) => {
   try {
     // Obtener los datos de la petición
     let paramsAnimalToUpdate = req.body;
-      
-    //Control validacion del usuario que esta logueado que desea registrar el animal rescatado
+    console.log(paramsAnimalToUpdate);    ////IMPRESION
+
+   
+        //Control validacion del usuario que esta logueado que desea actualizar el animal rescatado
     let userIdentity = req.user; 
-    console.log(userIdentity.role);   ///rol del usuario logueado  ****
-     
-    
-    if (userIdentity.role !== "role_user" ) {
-      return res.status(409).send({
+    console.log(userIdentity);
+       
+      if (userIdentity.role !== "role_administratorf" ) {
+        return res.status(409).send({
         status: "error",
         message: "¡No se tiene  el rol Admin para editar registros de Animales Rescatados!"
-      });
-
-    else {  
-
-    
-     // Eliminar campos que sobran porque no los vamos a actualizar
-    //delete paramsAnimalToUpdatee.iat;
-    //delete paramsAnimalToUpdate.exp;
-    //delete paramsAnimalToUpdate.role;
-
+        });
+      }
+   
       // Validar los datos obtenidos del body (que los datos obligatorios existan)
       if(!paramsAnimalToUpdate.name || !paramsAnimalToUpdate.owner_name || !paramsAnimalToUpdate.species || !paramsAnimalToUpdate.gender ) {
         return res.status(400).json({
           status: "error",
-          message: "Faltan datos por realizar la actualizacion exitosa  del animal rescatado"
+          message: "Faltan datos para realizar la actualizacion exitosa  del registro  animal rescatado"
         });
       }
 
@@ -341,59 +335,49 @@ export const updateAnimal = async (req, res) => {
         }
       }
 
-      // Imprimir los campos normalizados
-      console.log(paramsAnimalToUpdate);   ////*******IMPRIMIR CAMPOS 
+     // Verificar que el ID del animal esté presente en el body
+    // const rescuedAnimalId = paramsAnimalToUpdate.id;
 
-    
-    
-    // Crear el objeto del animal rescatado con los datos que validamos
-     let animal_to_update = new Animal(paramsAnimalToUpdate);
+        // Obtener el ID del Animal rescatado desde la URL (parámetros)
+     const rescuedAnimalId = req.params.id;
+      
 
-    // Comprobamos si el animal rescatado  ya existe en la BD
-    const animals = await Animal.find({
-      $and: [
-        { name: animal_to_update.name },  
-        { species: animal_to_update.species },
-        { gender: animal_to_update.gender },    
-      ]
-    }).exec();
-
-    // Verificar si el animal está duplicado para evitar conflictos
-    const isDuplicateAnimal = animals.some(animal => {
-      return animal && user._id.toString() !== userIdentity.userId;
-    });
-
-    if(isDuplicateAnimal) {
+     if (!rescuedAnimalId) {
       return res.status(400).send({
         status: "error",
-        message: "Error, solo se puede actualizar los datos de un   ....."
+        message: "El ID del animal rescatado es obligatorio para actualizar"
       });
-    }
-
-    
-    // Buscar y actualizar el usuario en Mongo
-    let userUpdated = await Animal.findByIdAndUpdate(animal._id.toString(),paramsAnimalToUpdateToUpdate, { new: true});
-
-    if(!animalUpdated){
+     }
+      
+    // Validar el formato del ObjectId
+    if (!mongoose.Types.ObjectId.isValid(rescuedAnimalId)) {
       return res.status(400).send({
         status: "error",
-        message: "Error al actualizar el animal rescatado"
+        message: "El ID del animal rescatado no es válido"
       });
-    };
+    }  
+
+    // Actualizar el animal en la base de datos
+    const rescuedAnimalUpdated = await Animal.findByIdAndUpdate(
+      rescuedAnimalId,
+      paramsAnimalToUpdate,
+      { new: true }
+    );
+
 
     // Devolver la respuesta exitosa
     return res.status(200).json({
       status: "success",
-      message: "Animal rescactado actualizado correctamente",
-      user: userUpdated
+      message: "Animal rescatado actualizado correctamente",
+      user: rescuedAnimalUpdated
     });
-   }
-  } catch (error) {
-    console.log("Error al actualizar los datos del animal rescatado: ", error);
-    return res.status(500).send({
-      status: "error",
-      message: "Error al actualizar los datos del animal rescatado usuario"
-    });
-  }
-};
-*/
+   
+  }  catch (error) {
+     console.log("Error al actualizar los datos del animal rescatado: ", error);
+      return res.status(500).send({
+       status: "error",
+       message: "Error al actualizar los datos del animal rescatado usuario"
+      });
+    }
+}
+

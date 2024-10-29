@@ -20,7 +20,7 @@ const AnimalSchema = Schema ({
     enum: ['fundacion', 'particular'],
     //required: [false, "Please provide the animal owner's name"],
     default: "fundacion",
-    maxlength: [60, "Owner's Name cannot be more than 60 characters"],
+    maxlength: [10, "Owner's Name cannot be more than 60 characters"],
   },
   species: {
     /* The species of this Animal */
@@ -52,7 +52,8 @@ const AnimalSchema = Schema ({
     /* Url to Rescued Animal image */
     //required: [false, 'Please provide an image url for this Animal.'],
     type: String,
-    maxlength: [20, 'URL donde esta la iamgen almacenada del Animal Rescatado'],
+    maxlength: [20, 'URL donde esta la imagen almacenada del Animal Rescatado'],
+    default: "default_user.png"
   },
   habits: {
     /* List of habits of this Animal */
