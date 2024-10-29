@@ -1,5 +1,9 @@
 import Animal from '../models/animals.js';
 import mongoose from 'mongoose';
+import dotenv from "dotenv";
+
+// Configurar el dotenv para usar variables de entorno
+dotenv.config();
 
 // Método de prueba del controlador animal rescatado
 export const testAnimal = (req, res) => {
@@ -144,7 +148,8 @@ export const deleteRescuedAnimal = async (req, res) => {
 
 
     // Buscar el registro del Animal rescatado  en la BD y lo eliminamos solo con el usuario que lo creo en la BD como Admin
-    const rescueDelete = await Animal.findOneAndDelete({ user_id: req.user.userId, _id: rescuedAnimalId}).populate('user_id', 'name last_name');
+    const rescueDelete = await Animal.findOneAndDelete({ user_id: process.env.ADMIN, _id: rescuedAnimalId}).populate('user_id', 'name last_name');
+
 
     // Verificar si existe la publicación en la BD y si se eliminó de la BD
     if(!rescueDelete){
