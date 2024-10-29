@@ -2,6 +2,12 @@ import Animal from '../models/animals.js';
 import mongoose from 'mongoose';
 import dotenv from "dotenv";
 
+//Constante para gestionar roles de usuarios 
+const ROLES = {
+   ADMIN: 'role_administratorf',
+   USER: 'role_user',
+};
+
 // Configurar el dotenv para usar variables de entorno
 dotenv.config();
 
@@ -12,7 +18,7 @@ export const testAnimal = (req, res) => {
     });
   };
   
-  // Método Registro de Animales Rescatados
+// Método Registro de Animales Rescatados
 export const register = async (req, res) => {
   try {
     // Obtener los datos de la petición
@@ -23,7 +29,7 @@ export const register = async (req, res) => {
     console.log(identity.role);   ///rol del usuario logueado
      
     
-    if (identity.role !== "role_administratorf" ) {
+    if (identity.role !== ROLES.ADMIN ) {
       return res.status(409).send({
         status: "error",
         message: "¡No se tiene  el rol Admin para crear registro de Animales Rescatados!"
@@ -43,16 +49,16 @@ export const register = async (req, res) => {
     params.owner_name= params.owner_name.toLowerCase();
     params.species= params.species.toLowerCase();
     params.gender= params.gender.toLowerCase();
-     console.log(params);
+   
 
     // Crear el objeto del animal rescatado con los datos que validamos
     let animal_to_save = new Animal(params);
     //console.log("impresion objeto " + animal_to_save + " con los valores del body");
      
     // Agregar al objeto de Animal la información del usuario autenticado quien crea el registro del animal rescatado
-     console.log("Datos del usuario registrado " + req.user.userId)
+    // console.log("Datos del usuario registrado " + req.user.userId)
      animal_to_save.user_id = req.user.userId;   
-     console.log("Impresion del objeto animal_to_save con los nuevos valores del UserId " + animal_to_save);
+    // console.log("Impresion del objeto animal_to_save con los nuevos valores del UserId " + animal_to_save);
 
     // Control de animales rescatados duplicados
     const existingAnimal = await Animal.findOne({
@@ -139,7 +145,7 @@ export const deleteRescuedAnimal = async (req, res) => {
      console.log(identity.role);   ///rol del usuario logueado
       
      
-     if (identity.role !== "role_administratorf" ) {
+     if (identity.role !== ROLES.ADMIN ) {
        return res.status(409).send({
          status: "error",
          message: "¡No se tiene  el rol Admin para eliminar registro de Animales Rescatados!"
@@ -148,7 +154,7 @@ export const deleteRescuedAnimal = async (req, res) => {
 
 
     // Buscar el registro del Animal rescatado  en la BD y lo eliminamos solo con el usuario que lo creo en la BD como Admin
-    const rescueDelete = await Animal.findOneAndDelete({ user_id: process.env.ADMIN, _id: rescuedAnimalId}).populate('user_id', 'name last_name');
+    const rescueDelete = await Animal.findOneAndDelete({ user_id: process.env.ADMIN_ID, _id: rescuedAnimalId}).populate('user_id', 'name last_name');
 
 
     // Verificar si existe la publicación en la BD y si se eliminó de la BD
@@ -243,7 +249,7 @@ export const uploadMediaAnimals = async (req, res) => {
      const identity = req.user; 
      console.log(identity.role);   ///rol del usuario logueado
 
-    if (identity.role !== "role_administratorf" ) {
+    if (identity.role !== ROLES.ADMIN ) {
       return res.status(409).send({
         status: "error",
         message: "¡No se tiene  el rol Admin para subir imagenes de  Animales Rescatados!"
@@ -315,7 +321,7 @@ export const updateAnimal = async (req, res) => {
     let userIdentity = req.user; 
     console.log(userIdentity);
        
-      if (userIdentity.role !== "role_administratorf" ) {
+      if (userIdentity.role !== ROLES.ADMIN ) {
         return res.status(409).send({
         status: "error",
         message: "¡No se tiene  el rol Admin para editar registros de Animales Rescatados!"

@@ -5,7 +5,7 @@ const AnimalSchema = Schema ({
   user_id: {
     type: Schema.ObjectId,
     ref: "User",
-    required: true
+    //required: true
   },
  name: {
     /* The name of this Animal */
@@ -52,8 +52,8 @@ const AnimalSchema = Schema ({
     /* Url to Rescued Animal image */
     //required: [false, 'Please provide an image url for this Animal.'],
     type: String,
-    maxlength: [20, 'URL donde esta la imagen almacenada del Animal Rescatado'],
-    default: "default_user.png"
+    maxlength: [40, 'URL donde esta la imagen almacenada del Animal Rescatado'],
+    default: "default_animal.jpg"
   },
   habits: {
     /* List of habits of this Animal */
@@ -67,7 +67,7 @@ const AnimalSchema = Schema ({
   },
   adopted: {
     /* Adoption of this Animal */
-    required: [false, 'Please provide if is adopted this Animal'],
+    required: [true, 'Please provide if is adopted this Animal'],
     type: Boolean,
     default: "false"
   },
