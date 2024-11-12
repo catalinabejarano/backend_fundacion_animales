@@ -23,11 +23,9 @@ export const register = async (req, res) => {
   try {
     // Obtener los datos de la petición
     let params = req.body;
-      
+    
     //Control validacion del usuario que esta logueado que desea registrar el animal rescatado
     const identity = req.user; 
-    console.log(identity.role);   ///rol del usuario logueado
-     
     
     if (identity.role !== ROLES.ADMIN ) {
       return res.status(409).send({
@@ -36,7 +34,7 @@ export const register = async (req, res) => {
       });
     }
         
-           // Validar los datos obtenidos (que los datos obligatorios existan)
+    // Validar los datos obtenidos (que los datos obligatorios existan)
     if(!params.name || !params.owner_name || !params.species || !params.gender ) {
       return res.status(400).json({
         status: "error",
@@ -44,7 +42,15 @@ export const register = async (req, res) => {
       });
     }
    
-    /////Normalizacion de los Parametros
+    //Normalizar valor Checked de los Campos Adopted y Trained
+    if(params.adopted === "on" ) { params.adopted = "true"
+    }else {params.adopted = "false" } 
+
+    if(params.trained === "on" ) {params.trained = "true"
+    }else {params.trained = "false" } 
+
+
+    //Normalizacion de los Parametros
     params.name= params.name.toLowerCase();
     params.owner_name= params.owner_name.toLowerCase();
     params.species= params.species.toLowerCase();
@@ -53,13 +59,8 @@ export const register = async (req, res) => {
 
     // Crear el objeto del animal rescatado con los datos que validamos
     let animal_to_save = new Animal(params);
-    //console.log("impresion objeto " + animal_to_save + " con los valores del body");
-     
-    // Agregar al objeto de Animal la información del usuario autenticado quien crea el registro del animal rescatado
-    // console.log("Datos del usuario registrado " + req.user.userId)
-     animal_to_save.user_id = req.user.userId;   
-    // console.log("Impresion del objeto animal_to_save con los nuevos valores del UserId " + animal_to_save);
-
+    animal_to_save.user_id = req.user.userId;   
+      
     // Control de animales rescatados duplicados
     const existingAnimal = await Animal.findOne({
       $and: [
@@ -80,18 +81,22 @@ export const register = async (req, res) => {
    
 
     // Guardar el animal rescatado en la base de datos
-    await animal_to_save.save();
-
+    const animalStored = await animal_to_save.save();
+    
+    //Extraer el valor del Id del animal registrado
+    let extractedId = animalStored._id.toString().replace(/new ObjectId\('|'\)/g, '');
+   
      // Devolver el animal rescatado registrado
      return res.status(201).json({
       status: "created",
       message: "Registro de animal rescatado exitoso en la Base de Datos de la Fundacion!",
-      animal_to_save
+      //animal_to_save
+      extractedId
     });
 
   
   } catch (error) {
-      console.log("Error en el registro de animales rescatados: ", error);
+     
       // Devolver mensaje de error
       return res.status(500).send({
       status: "error",
@@ -100,7 +105,7 @@ export const register = async (req, res) => {
     }
 };
 
-// Método para mostrar la publicación
+// Método para mostrar por Id datos del animal rescatado
 export const showRescuedAnimal = async (req, res) => {
   try {
     // Obtener el ID del Animal rescatado desde la url (parámetros)
@@ -108,12 +113,12 @@ export const showRescuedAnimal = async (req, res) => {
 
     // Buscar el Animal rescatado en la BD por ID
     const rescuedAnimalStored = await Animal.findById(rescuedAnimalId).populate('user_id', 'name last_name');
-
+   
     // Verificar si existe Animal rescatado en la BD
     if(!rescuedAnimalStored){
       return res.status(404).send({
         status: "error",
-        message: "No existe registro de ese Animal rescatado "
+        message: "No existe registro del animal rescatado"
       });
     }
 
@@ -142,26 +147,26 @@ export const deleteRescuedAnimal = async (req, res) => {
 
      //Control validacion del role del usuario que esta logueado que desea eliminar  el Animal rescatado
      const identity = req.user; 
-     console.log(identity.role);   ///rol del usuario logueado
-      
      
      if (identity.role !== ROLES.ADMIN ) {
        return res.status(409).send({
          status: "error",
-         message: "¡No se tiene  el rol Admin para eliminar registro de Animales Rescatados!"
+         message: "¡No se tiene  el rol Admin para eliminar registro de Animales Rescatados!",
+         deleteRegister: "Sin priviegios"
        });
      }
 
+  
+    // Buscar el registro del Animal rescatado  en la BD 
+    const rescueDelete = await Animal.findOneAndDelete({ _id: rescuedAnimalId }).populate('user_id', 'name last_name');
 
-    // Buscar el registro del Animal rescatado  en la BD y lo eliminamos solo con el usuario que lo creo en la BD como Admin
-    const rescueDelete = await Animal.findOneAndDelete({ user_id: process.env.ADMIN_ID, _id: rescuedAnimalId}).populate('user_id', 'name last_name');
-
-
-    // Verificar si existe la publicación en la BD y si se eliminó de la BD
-    if(!rescueDelete){
+    // Verificar si existe la publicación en la BD y se eliminó de la BD
+    if(rescueDelete !== null){
       return res.status(404).send({
         status: "error",
-        message: "No se ha encontrado o no tienes permiso para eliminar esta publicación"
+        message: "Registro no encontrado",
+        deleteRegister: "undeleted"
+
       });
     }
 
@@ -169,14 +174,15 @@ export const deleteRescuedAnimal = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "Registro de Animal rescatado eliminado con éxito",
-      publication: rescueDelete
+      deleteRegister: "deleted"
     });
 
   } catch (error) {
     console.log(`Error al eliminar el registro del Animal rescatado: ${ error }`);
     return res.status(500).send({
       status: "error",
-      message: "Error al eliminar el registro del Animal rescatado"
+      message: "Error al eliminar registrado",
+      deleteRegister: "Error conexión BD"
     });    
   }
 };
@@ -184,37 +190,35 @@ export const deleteRescuedAnimal = async (req, res) => {
 // Método para listar los registros de animales rescatados
 export const rescuedAnimals = async (req, res) => {
   try {
-    // ID del usuario Administrador
-    const userId = "6712cbfa95a2ee0cff3a308d";
-    //const userId = req.params.id;
-   
-
+    //imprimir datos enviados desde el frontend del usuario
+    
     // Asignar el número de página a mostrar inicialmente
     let page = req.params.page ? parseInt(req.params.page, 10) : 1;
 
     // Número de publicaciones que queremos mostrar por página
-    let itemsPerPage = req.query.limit ? parseInt(req.query.limit, 10) : 5;
+    let itemsPerPage = req.query.limit ? parseInt(req.query.limit, 12) : 12;
 
     // Opciones de la consulta
     const options = {
       page: page,
       limit: itemsPerPage,
       sort: { created_at: -1 },
-      populate: {
+        populate: {              
         path: 'user_id',
         select: '-nick -image -password -role -__v -email -created_at'
       },
       lean: true
     };
-
+    
+   
     // Buscar los registros de animales rescatados creados por el Administrador,  que no estan adoptados y estan en la fundacion aun. 
-    const registeredAnimals = await Animal.paginate({ user_id: userId , adopted: "false"}, options);
+    const registeredAnimals = await Animal.paginate({adopted: "false" } , options);
 
     // Verificar si existen registros de animales rescatados 
     if(!registeredAnimals.docs || registeredAnimals.docs.length <= 0){
       return res.status(404).send({
         status: "error",
-        message: "No hay registros de animales rescatados  pulicaciones para mostrar"
+        message: "No hay registros de animales rescatados para mostrar"
       });
     }
 
@@ -226,7 +230,8 @@ export const rescuedAnimals = async (req, res) => {
       total: registeredAnimals.totalDocs,
       pages: registeredAnimals.totalPages,
       page: registeredAnimals.page,
-      limit_items_ppage: registeredAnimals.limit
+      limit_items_ppage: registeredAnimals,
+      roleuser:  req.user.role
     });
 
   } catch (error) {
@@ -242,12 +247,11 @@ export const rescuedAnimals = async (req, res) => {
 // Método para subir imágenes a los animales rescatados
 export const uploadMediaAnimals = async (req, res) => {
   try {
-    // Obtener el ID de la publicación
+    // Obtener el ID del Animal Rescatado registrado
     const rescuedAnimalId = req.params.id;
 
      //Control validacion del role del usuario que esta logueado que desea eliminar  el Animal rescatado
      const identity = req.user; 
-     console.log(identity.role);   ///rol del usuario logueado
 
     if (identity.role !== ROLES.ADMIN ) {
       return res.status(409).send({
@@ -280,8 +284,8 @@ export const uploadMediaAnimals = async (req, res) => {
     // Actualizar el animal rescatado con la URL de la imagen
     const rescuedAnimalUpdated = await Animal.findByIdAndUpdate(
       rescuedAnimalId,
-      { image_url: mediaUrl },
-      { new: true}
+      { $set: { image_url: mediaUrl } }, 
+      { new: true, runValidators: true}
     );
 
     if(!rescuedAnimalUpdated){
@@ -314,12 +318,9 @@ export const updateAnimal = async (req, res) => {
   try {
     // Obtener los datos de la petición
     let paramsAnimalToUpdate = req.body;
-    console.log(paramsAnimalToUpdate);    ////IMPRESION
-
    
-        //Control validacion del usuario que esta logueado que desea actualizar el animal rescatado
+    //Control validacion del usuario que esta logueado que desea actualizar el animal rescatado
     let userIdentity = req.user; 
-    console.log(userIdentity);
        
       if (userIdentity.role !== ROLES.ADMIN ) {
         return res.status(409).send({

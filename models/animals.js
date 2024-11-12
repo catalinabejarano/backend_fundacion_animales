@@ -17,17 +17,13 @@ const AnimalSchema = Schema ({
   owner_name: {
     /* The owner of this Animal */
     type: String,
-    enum: ['fundacion', 'particular'],
-    //required: [false, "Please provide the animal owner's name"],
     default: "fundacion",
     maxlength: [10, "Owner's Name cannot be more than 60 characters"],
   },
   species: {
     /* The species of this Animal */
     type: String,
-    enum: ['gato', 'perro'],
     required: [true, 'Please specify the species of animal.'],
-    maxlength: [10, 'Species specified cannot be more than 40 characters'],
   },
   gender: {
     /* Gender of the Animal */
@@ -41,33 +37,31 @@ const AnimalSchema = Schema ({
   },
   trained: {
     /* Boolean trained value, if applicable */
-    //required: [false, 'Please specify if is trained.'],
     type: Boolean,
   },
   diet: {
     /* List of dietary needs, if applicable */
     type: Array,
+    default: "Pendiente de colocar alimentos"
   },
   image_url: {
     /* Url to Rescued Animal image */
     //required: [false, 'Please provide an image url for this Animal.'],
     type: String,
-    maxlength: [40, 'URL donde esta la imagen almacenada del Animal Rescatado'],
-    default: "default_animal.jpg"
   },
   habits: {
     /* List of habits of this Animal */
-
     type: Array,
+    default: "Pendiente de colocar habitos "
   },
   diseases: {
     /* List of diseases of this Animal*/
-
     type: Array,
+    default: "Pendiente de colocar enfermedades"
   },
   adopted: {
     /* Adoption of this Animal */
-    required: [true, 'Please provide if is adopted this Animal'],
+    required: [false, 'Please provide if is adopted this Animal'],
     type: Boolean,
     default: "false"
   },

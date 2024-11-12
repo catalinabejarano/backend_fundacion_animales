@@ -6,6 +6,7 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 import pkg from 'cloudinary';
 const { v2: cloudinary } = pkg;
 
+
 // Configuración de subida de archivos en Cloudinary
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
@@ -27,11 +28,12 @@ const router = Router();
 // Definir rutas de Publication
 router.get('/test-animal/', testAnimal);
 router.post('/register/', ensureAuth, register);
-router.get('/rescued-animal/:id', ensureAuth, showRescuedAnimal);
-router.delete('/delete-rescued-animal/:id', ensureAuth, deleteRescuedAnimal);
-router.get('/animals-list/:page?', ensureAuth, rescuedAnimals);
-router.post('/upload-media-animals/:id', [ensureAuth, uploads.single("file0")], uploadMediaAnimals)
-router.put('/update-register/:id', ensureAuth, updateAnimal);
+router.get('/rescued-animal/:id', ensureAuth, showRescuedAnimal); 
+router.delete('/delete-rescued-animal/:id', ensureAuth, deleteRescuedAnimal); 
+router.get('/animals-list/:page?', ensureAuth, rescuedAnimals); 
+router.post('/upload-media-animals/:id', [ensureAuth, uploads.single("file0")], uploadMediaAnimals);
+router.put('/update-register/:id', ensureAuth, updateAnimal); 
+
 
 
 //Exportar el Router

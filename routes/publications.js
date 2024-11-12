@@ -1,4 +1,3 @@
-  
 import { Router } from "express";
 import { testPublication, savePublication, showPublication, deletePublication, publicationsUser, uploadMedia , showMedia, feed } from "../controllers/publication.js";
 import { ensureAuth } from '../middlewares/auth.js';
