@@ -16,10 +16,10 @@ export const saveFollow = async (req, res) => {
   try {
     // Obtener datos desde el body del usuario que se quiere seguir
     const { followed_user } = req.body;
-    console.log(followed_user);
+    
     // Obtener el ID del usuario autenticado que va a buscar a otro usuario para seguir
     const identity = req.user; 
-    console.log(identity);
+    
 
     // Verificar si identity contiene al usuario autenticado
     if(!identity || !identity.userId){
